@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌿 Garten Planer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== KOPFZEILE ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1>🌿 Garten Planer</h1>
+      <p class="subtitle">Plane deinen Traumgarten – Terrasse, Teich &amp; Blumenbeete</p>
+    </div>
+  </header>
+
+  <!-- ===== HAUPTBEREICH ===== -->
+  <main class="layout">
+
+    <!-- LINKE SEITENLEISTE: Werkzeuge -->
+    <aside class="sidebar sidebar--left">
+
+      <section class="panel">
+        <h2 class="panel-title">🎨 Elemente</h2>
+        <div class="tool-grid" id="toolGrid">
+          <!-- Dynamisch per JS befüllt -->
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">⚙️ Rastereinstellungen</h2>
+        <div class="control-group">
+          <label for="gridCols">Breite: <strong id="colsVal">40</strong> Felder</label>
+          <input type="range" id="gridCols" min="10" max="60" value="40" />
+        </div>
+        <div class="control-group">
+          <label for="gridRows">Höhe: <strong id="rowsVal">30</strong> Felder</label>
+          <input type="range" id="gridRows" min="8" max="40" value="30" />
+        </div>
+        <div class="control-group">
+          <label for="cellSize">Zellgröße</label>
+          <select id="cellSize">
+            <option value="14">Klein (14 px)</option>
+            <option value="18" selected>Mittel (18 px)</option>
+            <option value="24">Groß (24 px)</option>
+            <option value="30">Sehr groß (30 px)</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">🎨 Eigene Elemente</h2>
+        <div class="custom-tool-wrap">
+          <input type="color" id="customColor" value="#ff9800" title="Farbe wählen" />
+          <div>
+            <label for="customColor" class="custom-color-label">Farbe &amp; Name</label>
+            <input type="text" id="customName" maxlength="16" placeholder="z.B. Sandkasten…" class="custom-name-input" />
+          </div>
+        </div>
+        <button class="btn btn--primary" id="btnAddCustom" style="margin-top:8px">➕ Element hinzufügen</button>
+      </section>
+
+      <section class="panel panel--actions">
+        <h2 class="panel-title">🛠️ Aktionen</h2>
+        <button class="btn btn--secondary" id="btnUndo">↩ Rückgängig</button>
+        <button class="btn btn--secondary" id="btnRedo">↪ Wiederholen</button>
+        <button class="btn btn--danger"    id="btnClear">🗑 Alles löschen</button>
+        <button class="btn btn--primary"   id="btnSave">💾 Als JSON speichern</button>
+        <label  class="btn btn--primary"   id="labelLoad">
+          📂 Laden
+          <input type="file" id="btnLoad" accept=".json" style="display:none" />
+        </label>
+        <button class="btn btn--primary"   id="btnSaveJPG">🖼 Als JPG exportieren</button>
+        <div class="storage-info" id="storageInfo">🔄 Bereit</div>
+        <button class="btn btn--danger"    id="btnClearStorage">🧹 Browser-Speicher löschen</button>
+      </section>
+
+    </aside>
+
+    <!-- MITTE: Garten-Raster -->
+    <section class="canvas-area">
+      <div class="canvas-toolbar">
+        <span id="cursorInfo" class="cursor-info">Werkzeug: —</span>
+        <span id="cellInfo"   class="cell-info"></span>
+        <button class="btn-ruler active" id="btnRuler" title="Lineal ein-/ausblenden">📐 Lineal</button>
+        <button class="btn-fullscreen"   id="btnFullscreen" title="Vollbildmodus">⛶ Vollbild</button>
+      </div>
+      <div class="grid-scroll-wrap">
+        <div class="grid-ruler-container" id="gridRulerContainer">
+          <div id="rulerCorner" class="ruler-corner"></div>
+          <div id="rulerTop"    class="ruler-top"></div>
+          <div id="rulerLeft"   class="ruler-left"></div>
+          <div class="garden-grid-wrap">
+            <div id="gardenGrid" class="garden-grid"></div>
+            <div id="labelOverlay" class="label-overlay"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECHTE SEITENLEISTE: Statistiken -->
+    <aside class="sidebar sidebar--right">
+      <section class="panel">
+        <h2 class="panel-title">📊 Flächenstatistik</h2>
+        <div id="stats" class="stats-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">📖 Legende</h2>
+        <div id="legend" class="legend-list"></div>
+      </section>
+    </aside>
+
+  </main>
+
+  <!-- ===== FUSSZEILE ===== -->
+  <footer class="site-footer">
+    <p>🌱 Garten Planer &mdash; <kbd>Ctrl+Z</kbd> Rückgängig &nbsp;|&nbsp; <kbd>Ctrl+Y</kbd> Wiederholen &nbsp;|&nbsp; Klicken &amp; Ziehen zum Malen</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
