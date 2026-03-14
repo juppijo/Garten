@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌿 Garten Planer</title>
+  <link rel="icon" href="favicon.jpg" type="image/png">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,9 +12,14 @@
   <!-- ===== KOPFZEILE ===== -->
   <header class="site-header">
     <div class="header-inner">
-      <h1>🌿 Garten Planer</h1>
-      <p class="subtitle">Plane deinen Traumgarten – Terrasse, Teich &amp; Blumenbeete</p>
+      <h1><img src="bild.jpg" alt="Zaminia" class="header-img">
+        🌿 Garten Planer
+      </h1>
+      <p class="subtitle" >Plane deinen Traumgarten – Terrasse, Teich &amp; Blumenbeete. 
+        <button class="btn-fullscreen" id="btnFullscreen" title="Vollbildmodus">Vollbild</button>
+      </p>
     </div>
+   
   </header>
 
   <!-- ===== HAUPTBEREICH ===== -->
@@ -85,7 +91,6 @@
         <span id="cursorInfo" class="cursor-info">Werkzeug: —</span>
         <span id="cellInfo"   class="cell-info"></span>
         <button class="btn-ruler active" id="btnRuler" title="Lineal ein-/ausblenden">📐 Lineal</button>
-        <button class="btn-fullscreen"   id="btnFullscreen" title="Vollbildmodus">⛶ Vollbild</button>
       </div>
       <div class="grid-scroll-wrap">
         <div class="grid-ruler-container" id="gridRulerContainer">

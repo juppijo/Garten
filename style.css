@@ -46,7 +46,18 @@ body {
 }
 .site-header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: .5px; }
 .site-header .subtitle { font-size: .85rem; opacity: .85; margin-top: 2px; }
-
+/*--------------------------------------*/
+.header-img {
+  width: 154px;        /* Breite des Bildes */
+  height: 88px;        /* Höhe des Bildes */
+  object-fit: cover;   /* Verhindert Verzerrung */
+  border-radius: 25%;  /* Macht das Bild rund */
+  border: 2px solid var(--clr-primary); /* Ein feiner Rahmen in der aktuellen Themenfarbe */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: border-color 1s linear; /* Damit der Rahmen mit dem Auto-Hue mitfließt */
+  float: left;
+  margin-right: 30px;
+}
 /* ── Layout ────────────────────────────────────────────────── */
 .layout {
   display: grid;
@@ -522,6 +533,7 @@ body {
   cursor: pointer;
   transition: all var(--transition);
   white-space: nowrap;
+  float: right;
 }
 .btn-fullscreen:hover {
   background: var(--clr-accent);
