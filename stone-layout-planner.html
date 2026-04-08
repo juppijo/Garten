@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steinverlegungs-Planer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 20px 0 15px 0;
+            color: #555;
+        }
+
+        .info {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stone-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 2px solid;
+            border-radius: 8px;
+            cursor: move;
+            transition: all 0.2s;
+        }
+
+        .stone-item:hover:not(.disabled) {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        .stone-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stone-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .stone-preview {
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-undo {
+            background: #ef4444;
+            color: white;
+        }
+
+        .button-undo:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .button-suggest {
+            background: #10b981;
+            color: white;
+        }
+
+        .button-suggest:hover {
+            background: #059669;
+        }
+
+        .hint {
+            margin-top: 20px;
+            padding: 15px;
+            background: #dbeafe;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        .main-area {
+            flex: 1;
+            padding: 30px;
+            overflow: auto;
+        }
+
+        .canvas-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            display: inline-block;
+        }
+
+        .canvas-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #canvas {
+            border: 4px solid #333;
+            background: #e5e5e5;
+            background-image: 
+                linear-gradient(to right, #ccc 1px, transparent 1px),
+                linear-gradient(to bottom, #ccc 1px, transparent 1px);
+            background-size: 60px 60px;
+            position: relative;
+        }
+
+        .placed-stone {
+            position: absolute;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .placed-stone:hover {
+            opacity: 0.8;
+        }
+
+        .stone-controls {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            gap: 10px;
+        }
+
+        .placed-stone:hover .stone-controls {
+            display: flex;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .rotate-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .rotate-btn:hover {
+            background: #2563eb;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h1>Steinverlegung</h1>
+        
+        <div>
+            <h2>Fläche</h2>
+            <p class="info">300 × 300 cm</p>
+        </div>
+
+        <div>
+            <h2>Verfügbare Steine</h2>
+            
+            <div class="stone-item" id="stone-60x60" draggable="true" style="border-color: #8B4513; background-color: rgba(139, 69, 19, 0.1);">
+                <div class="stone-header">
+                    <span>60×60 cm</span>
+                    <span><span id="count-60x60">16</span>/16</span>
+                </div>
+                <div class="stone-preview" style="width: 60px; height: 60px; background: #8B4513;"></div>
+            </div>
+
+            <div class="stone-item" id="stone-30x60" draggable="true" style="border-color: #A0522D; background-color: rgba(160, 82, 45, 0.1);">
+                <div class="stone-header">
+                    <span>30×60 cm</span>
+                    <span><span id="count-30x60">6</span>/6</span>
+                </div>
+                <div class="stone-preview" style="width: 30px; height: 60px; background: #A0522D;"></div>
+            </div>
+
+            <div class="stone-item" id="stone-30x30" draggable="true" style="border-color: #CD853F; background-color: rgba(205, 133, 63, 0.1);">
+                <div class="stone-header">
+                    <span>30×30 cm</span>
+                    <span><span id="count-30x30">30</span>/30</span>
+                </div>
+                <div class="stone-preview" style="width: 30px; height: 30px; background: #CD853F;"></div>
+            </div>
+        </div>
+
+        <button class="button button-suggest" onclick="suggestPattern()">
+            ✨ Muster vorschlagen
+        </button>
+
+        <button class="button button-undo" id="undoBtn" onclick="undoLast()" disabled>
+            ↶ Rückgängig
+        </button>
+
+        <div class="hint">
+            <strong>Hinweis:</strong> Ziehe die Steine auf die Fläche. Fahre über platzierte Steine, um sie zu drehen oder zu löschen.
+        </div>
+    </div>
+
+    <div class="main-area">
+        <div class="canvas-container">
+            <h3 class="canvas-title">Verlegeplan (300 × 300 cm)</h3>
+            <div id="canvas"></div>
+        </div>
+    </div>
+
+    <script>
+        var GRID_SIZE = 300;
+        var SCALE = 2;
+        var GRID_UNIT = 30;
+
+        var stones = {
+            '60x60': { size: [60, 60], total: 16, color: '#8B4513' },
+            '30x60': { size: [30, 60], total: 6, color: '#A0522D' },
+            '30x30': { size: [30, 30], total: 30, color: '#CD853F' }
+        };
+
+        var placedStones = [];
+        var draggedStone = null;
+        var stoneIdCounter = 0;
+
+        var canvas = document.getElementById('canvas');
+        canvas.style.width = (GRID_SIZE * SCALE) + 'px';
+        canvas.style.height = (GRID_SIZE * SCALE) + 'px';
+
+        document.querySelectorAll('.stone-item').forEach(function(item) {
+            item.addEventListener('dragstart', function(e) {
+                var type = item.id.replace('stone-', '');
+                if (getAvailableCount(type) <= 0) {
+                    e.preventDefault();
+                    return;
+                }
+                draggedStone = { type: type, rotation: 0 };
+            });
+        });
+
+        canvas.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (!draggedStone) return;
+
+            var rect = canvas.getBoundingClientRect();
+            var x = Math.round((e.clientX - rect.left) / SCALE / GRID_UNIT) * GRID_UNIT;
+            var y = Math.round((e.clientY - rect.top) / SCALE / GRID_UNIT) * GRID_UNIT;
+
+            placeStone(draggedStone.type, x, y, draggedStone.rotation);
+            draggedStone = null;
+        });
+
+        function getAvailableCount(type) {
+            var used = placedStones.filter(function(s) { return s.type === type; }).length;
+            return stones[type].total - used;
+        }
+
+        function updateCounts() {
+            Object.keys(stones).forEach(function(type) {
+                var available = getAvailableCount(type);
+                document.getElementById('count-' + type).textContent = available;
+                
+                var item = document.getElementById('stone-' + type);
+                if (available <= 0) {
+                    item.classList.add('disabled');
+                    item.draggable = false;
+                } else {
+                    item.classList.remove('disabled');
+                    item.draggable = true;
+                }
+            });
+
+            document.getElementById('undoBtn').disabled = placedStones.length === 0;
+        }
+
+        function placeStone(type, x, y, rotation) {
+            var stone = stones[type];
+            var width = rotation % 180 === 0 ? stone.size[0] : stone.size[1];
+            var height = rotation % 180 === 0 ? stone.size[1] : stone.size[0];
+
+            if (x < 0 || y < 0 || x + width > GRID_SIZE || y + height > GRID_SIZE) return false;
+
+            var overlaps = placedStones.some(function(s) {
+                var sStone = stones[s.type];
+                var sWidth = s.rotation % 180 === 0 ? sStone.size[0] : sStone.size[1];
+                var sHeight = s.rotation % 180 === 0 ? sStone.size[1] : sStone.size[0];
+
+                return !(x >= s.x + sWidth || x + width <= s.x || 
+                         y >= s.y + sHeight || y + height <= s.y);
+            });
+
+            if (overlaps) return false;
+
+            var id = stoneIdCounter++;
+            placedStones.push({ type: type, x: x, y: y, rotation: rotation, id: id });
+            renderStone({ type: type, x: x, y: y, rotation: rotation, id: id });
+            updateCounts();
+            return true;
+        }
+
+        function renderStone(stone) {
+            var stoneData = stones[stone.type];
+            var width = stone.rotation % 180 === 0 ? stoneData.size[0] : stoneData.size[1];
+            var height = stone.rotation % 180 === 0 ? stoneData.size[1] : stoneData.size[0];
+
+            var div = document.createElement('div');
+            div.className = 'placed-stone';
+            div.id = 'placed-' + stone.id;
+            div.style.left = (stone.x * SCALE) + 'px';
+            div.style.top = (stone.y * SCALE) + 'px';
+            div.style.width = (width * SCALE) + 'px';
+            div.style.height = (height * SCALE) + 'px';
+            div.style.backgroundColor = stoneData.color;
+
+            div.innerHTML = '<div class="stone-controls">' +
+                '<button class="control-btn rotate-btn" onclick="rotateStone(' + stone.id + ')">↻</button>' +
+                '<button class="control-btn delete-btn" onclick="removeStone(' + stone.id + ')">×</button>' +
+                '</div>';
+
+            canvas.appendChild(div);
+        }
+
+        function rotateStone(id) {
+            var stone = placedStones.find(function(s) { return s.id === id; });
+            if (!stone) return;
+
+            var index = placedStones.indexOf(stone);
+            placedStones.splice(index, 1);
+            document.getElementById('placed-' + id).remove();
+
+            var newRotation = (stone.rotation + 90) % 360;
+            if (!placeStone(stone.type, stone.x, stone.y, newRotation)) {
+                placedStones.splice(index, 0, stone);
+                renderStone(stone);
+            }
+        }
+
+        function removeStone(id) {
+            placedStones = placedStones.filter(function(s) { return s.id !== id; });
+            document.getElementById('placed-' + id).remove();
+            updateCounts();
+        }
+
+        function undoLast() {
+            if (placedStones.length === 0) return;
+            var last = placedStones[placedStones.length - 1];
+            removeStone(last.id);
+        }
+
+        function clearAll() {
+            placedStones = [];
+            canvas.innerHTML = '';
+            updateCounts();
+        }
+
+        function suggestPattern() {
+            clearAll();
+
+            var patterns = [
+                function() {
+                    for (var y = 0; y < 300; y += 60) {
+                        for (var x = 0; x < 300; x += 60) {
+                            if (((x / 60) + (y / 60)) % 2 === 0 && getAvailableCount('60x60') > 0) {
+                                placeStone('60x60', x, y, 0);
+                            }
+                        }
+                    }
+                    for (var y = 0; y < 300; y += 30) {
+                        for (var x = 0; x < 300; x += 30) {
+                            if (getAvailableCount('30x30') > 0) {
+                                placeStone('30x30', x, y, 0);
+                            }
+                        }
+                    }
+                },
+
+                function() {
+                    for (var i = 0; i < 240; i += 60) {
+                        placeStone('60x60', i, 0, 0);
+                        placeStone('60x60', i, 240, 0);
+                        placeStone('60x60', 0, i, 0);
+                        placeStone('60x60', 240, i, 0);
+                    }
+                    for (var y = 60; y < 240; y += 30) {
+                        for (var x = 60; x < 240; x += 30) {
+                            if (getAvailableCount('30x30') > 0) {
+                                placeStone('30x30', x, y, 0);
+                            }
+                        }
+                    }
+                },
+
+                function() {
+                    for (var i = 0; i < 300 && getAvailableCount('60x60') > 0; i += 60) {
+                        placeStone('60x60', i, i, 0);
+                    }
+                    var placed = 0;
+                    for (var y = 0; y < 300 && getAvailableCount('30x60') > 0; y += 60) {
+                        for (var x = 60; x < 240 && getAvailableCount('30x60') > 0; x += 60) {
+                            if (placed % 2 === 0) {
+                                placeStone('30x60', x, y, 0);
+                            } else {
+                                placeStone('30x60', x, y, 90);
+                            }
+                            placed++;
+                        }
+                    }
+                    for (var y = 0; y < 300; y += 30) {
+                        for (var x = 0; x < 300; x += 30) {
+                            if (getAvailableCount('30x30') > 0) {
+                                placeStone('30x30', x, y, 0);
+                            }
+                        }
+                    }
+                },
+
+                function() {
+                    var positions = [];
+                    for (var y = 0; y < 300; y += 30) {
+                        for (var x = 0; x < 300; x += 30) {
+                            positions.push({x: x, y: y});
+                        }
+                    }
+                    
+                    positions.sort(function() { return Math.random() - 0.5; });
+                    
+                    for (var i = 0; i < positions.length; i++) {
+                        var pos = positions[i];
+                        if (getAvailableCount('60x60') > 0 && Math.random() > 0.5) {
+                            if (placeStone('60x60', pos.x, pos.y, 0)) continue;
+                        }
+                        if (getAvailableCount('30x60') > 0 && Math.random() > 0.5) {
+                            if (placeStone('30x60', pos.x, pos.y, Math.random() > 0.5 ? 0 : 90)) continue;
+                        }
+                        if (getAvailableCount('30x30') > 0) {
+                            placeStone('30x30', pos.x, pos.y, 0);
+                        }
+                    }
+                }
+            ];
+
+            var pattern = patterns[Math.floor(Math.random() * patterns.length)];
+            pattern();
+        }
+
+        updateCounts();
+    </script>
+</body>
+</html>
